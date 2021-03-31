@@ -1,0 +1,25 @@
+{
+	"name": "daldalso-api",
+	"version": "1.0.0",
+	"description": "Daldalso API Module",
+	"main": "dist/index.js",
+	"keywords": [
+		"daldalso"
+	],
+	"dependencies": {
+		"axios": "^0.21.0"
+	},
+	"scripts": {
+		"build": "tsc"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/lshqqytiger/daldalso-api.git"
+	},
+	"author": {
+		"name": "베프",
+		"email": "op@bf2.xyz",
+		"url": "https://github.com/lshqqytiger"
+	},
+	"homepage": "https://daldal.so/"
+}
