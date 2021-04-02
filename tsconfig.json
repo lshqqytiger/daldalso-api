@@ -3,6 +3,7 @@
     "target": "es5",
     "module": "commonjs",
     "declaration": true,
+    "lib": ["esnext.asynciterable","es5","dom"],
     "strict": false,
     "esModuleInterop": true,
     "outDir": "dist"

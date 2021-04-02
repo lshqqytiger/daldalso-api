@@ -7,7 +7,10 @@
 		"daldalso"
 	],
 	"dependencies": {
-		"axios": "^0.21.0"
+		"@types/puppeteer": "^5.4.3",
+		"axios": "^0.21.0",
+		"cheerio": "^1.0.0-rc.5",
+		"puppeteer": "^8.0.0"
 	},
 	"scripts": {
 		"build": "tsc"
