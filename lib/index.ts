@@ -13,7 +13,7 @@ const URL: any = {
 const getJavaUsers = async () => {
   let result = await Axios.get(URL.javaUsers);
 
-  if (!result) return;
+  if (!result || !result.data || !result.data.users) return;
   else {
     return result.data.users.length;
   }
@@ -22,7 +22,7 @@ const getJavaUsers = async () => {
 const getJavaUserList = async () => {
   let result = await Axios.get(URL.javaUsers);
 
-  if (!result) return;
+  if (!result || !result.data) return;
   else {
     return result.data.users;
   }
@@ -117,11 +117,11 @@ const getJavaSongList = async (
     else continue;
   }
 
+  result.data = result.data.filter((element, i) => element != null);
+
   if (result.data.length > 15) {
     result.data = result.data.slice(0, 15);
   }
-
-  result.data = result.data.filter((element, i) => element != null);
 
   return result.data;
 };
