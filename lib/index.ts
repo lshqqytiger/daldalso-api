@@ -126,10 +126,46 @@ const getJavaSongList = async (
   return result.data;
 };
 
+// Temp
+const tempGetJavaUserList = async (id: string, pw: string) => {
+  const browser = await Puppeteer.launch();
+  const page = await browser.newPage();
+  let data: string;
+
+  await page.goto("https://sorry.daldalso.com/login");
+
+  await page.evaluate(
+    (ida, pwa) => {
+      (document.querySelector(
+        'input[name="id"]'
+      ) as HTMLInputElement).value = ida;
+      (document.querySelector(
+        'input[name="password"]'
+      ) as HTMLInputElement).value = pwa;
+    },
+    id,
+    pw
+  );
+
+  await page.click('button[class="abutton"]');
+
+  await page.waitForTimeout(1000);
+
+  await page.goto(URL.javaUsers);
+
+  const element1 = await page.$(
+    'pre[style="word-wrap: break-word; white-space: pre-wrap;"]'
+  );
+  data = await page.evaluate((element1) => element1.textContent, element1);
+  await browser.close();
+  return JSON.parse(data);
+};
+
 export {
   getJavaUsers,
   getJavaUserList,
   search,
   getDaldalsoUsers,
   getJavaSongList,
+  tempGetJavaUserList,
 };
