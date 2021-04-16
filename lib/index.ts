@@ -8,6 +8,7 @@ const URL: any = {
   songList: "https://sorry.daldalso.com",
   search: "https://sorry.daldalso.com/search",
   daldalsoUsers: "https://daldal.so/world/channels",
+  moremDic: "https://morem.daldal.so/query",
 };
 
 const getJavaUsers = async () => {
@@ -126,6 +127,15 @@ const getJavaSongList = async (
   return result.data;
 };
 
+const getMorem = async (data) => {
+  let result = await Axios.get(encodeURI(`${URL.moremDic}?q=${data}`));
+
+  if (!result || !result.data) return;
+  else {
+    return result.data.list;
+  }
+};
+
 // Temp
 const tempGetJavaUserList = async (id: string, pw: string) => {
   const browser = await Puppeteer.launch();
@@ -167,5 +177,6 @@ export {
   search,
   getDaldalsoUsers,
   getJavaSongList,
+  getMorem,
   tempGetJavaUserList,
 };
