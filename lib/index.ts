@@ -3,10 +3,10 @@ import Cheerio from "cheerio";
 import Puppeteer from "puppeteer";
 
 const URL: any = {
-  javaUsers: "https://sorry.daldalso.com/java/users",
-  javaSongs: "https://sorry.daldalso.com/java/charts",
-  songList: "https://sorry.daldalso.com",
-  search: "https://sorry.daldalso.com/search",
+  javaUsers: "https://sorry.daldal.so/java/users",
+  javaSongs: "https://sorry.daldal.so/java/charts",
+  songList: "https://sorry.daldal.so",
+  search: "https://sorry.daldal.so/search",
   daldalsoUsers: "https://daldal.so/world/channels",
   moremDic: "https://morem.daldal.so/query",
 };
@@ -67,12 +67,11 @@ const getDaldalsoUsers = async (id: string, pw: string) => {
 
   await page.evaluate(
     (ida, pwa) => {
-      (document.querySelector(
-        'input[name="id"]'
-      ) as HTMLInputElement).value = ida;
-      (document.querySelector(
-        'input[name="password"]'
-      ) as HTMLInputElement).value = pwa;
+      (document.querySelector('input[name="id"]') as HTMLInputElement).value =
+        ida;
+      (
+        document.querySelector('input[name="password"]') as HTMLInputElement
+      ).value = pwa;
     },
     id,
     pw
@@ -142,16 +141,15 @@ const tempGetJavaUserList = async (id: string, pw: string) => {
   const page = await browser.newPage();
   let data: string;
 
-  await page.goto("https://sorry.daldalso.com/login");
+  await page.goto("https://sorry.daldal.so/login");
 
   await page.evaluate(
     (ida, pwa) => {
-      (document.querySelector(
-        'input[name="id"]'
-      ) as HTMLInputElement).value = ida;
-      (document.querySelector(
-        'input[name="password"]'
-      ) as HTMLInputElement).value = pwa;
+      (document.querySelector('input[name="id"]') as HTMLInputElement).value =
+        ida;
+      (
+        document.querySelector('input[name="password"]') as HTMLInputElement
+      ).value = pwa;
     },
     id,
     pw
