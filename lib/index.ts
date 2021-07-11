@@ -9,6 +9,7 @@ const URL: any = {
   search: "https://sorry.daldal.so/search",
   daldalsoUsers: "https://daldal.so/world/channels",
   moremDic: "https://morem.daldal.so/query",
+  kkutuList: "https://kkutu.kr",
 };
 
 const getJavaUsers = async () => {
@@ -135,38 +136,21 @@ const getMorem = async (data) => {
   }
 };
 
-// Temp
-const tempGetJavaUserList = async (id: string, pw: string) => {
+const getKKuTuServers = async () => {
   const browser = await Puppeteer.launch();
   const page = await browser.newPage();
-  let data: string;
+  let data: any;
 
-  await page.goto("https://sorry.daldal.so/login");
+  await page.goto(URL.kkutuList);
 
-  await page.evaluate(
-    (ida, pwa) => {
-      (document.querySelector('input[name="id"]') as HTMLInputElement).value =
-        ida;
-      (
-        document.querySelector('input[name="password"]') as HTMLInputElement
-      ).value = pwa;
-    },
-    id,
-    pw
-  );
+  await page.addScriptTag({ path: "kkutulist.js" });
 
-  await page.click('button[class="abutton"]');
+  const list = await page.$('h1[id="KKUTULIST"]');
 
-  await page.waitForTimeout(1000);
+  data = await page.evaluate((list) => list.textContent, list);
 
-  await page.goto(URL.javaUsers);
-
-  const element1 = await page.$(
-    'pre[style="word-wrap: break-word; white-space: pre-wrap;"]'
-  );
-  data = await page.evaluate((element1) => element1.textContent, element1);
   await browser.close();
-  return JSON.parse(data);
+  return data;
 };
 
 export {
@@ -176,5 +160,5 @@ export {
   getDaldalsoUsers,
   getJavaSongList,
   getMorem,
-  tempGetJavaUserList,
+  getKKuTuServers,
 };
