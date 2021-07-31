@@ -50,22 +50,20 @@ const getUsers = async (id: string, pw: string) => {
 };
 
 const Sorrydl = {
-  getList: async () => {
-    let list = [];
-
-    list = list.concat(
-      (
+  getList: async (page?: number) => {
+    if (page) {
+      return (
         await Axios.post(`${URL.search}`, {
           title: "",
           artist: "",
           tag: "",
           order: "",
-          page: 0,
+          page,
         })
-      ).data.list
-    );
+      ).data.list;
+    } else {
+      let list = [];
 
-    for await (let i of asyncGenerator(1, Math.floor(list[0].id / 30))) {
       list = list.concat(
         (
           await Axios.post(`${URL.search}`, {
@@ -73,13 +71,27 @@ const Sorrydl = {
             artist: "",
             tag: "",
             order: "",
-            page: i,
+            page: 0,
           })
         ).data.list
       );
-    }
 
-    return list;
+      for await (let i of asyncGenerator(1, Math.floor(list[0].id / 30))) {
+        list = list.concat(
+          (
+            await Axios.post(`${URL.search}`, {
+              title: "",
+              artist: "",
+              tag: "",
+              order: "",
+              page: i,
+            })
+          ).data.list
+        );
+      }
+
+      return list;
+    }
   },
 
   search: async (type: string, value: any) => {
