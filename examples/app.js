@@ -1,7 +1,7 @@
 const Daldalso = require('../dist/index.js');
 
 async function get(){
-	let result = await Daldalso.getKKuTuServers();
+	let result = await Daldalso.Sorrydl.getList();
 	
 	console.log(result);
 }

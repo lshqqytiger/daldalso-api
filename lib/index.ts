@@ -1,6 +1,12 @@
 import Axios from "axios";
-import Cheerio from "cheerio";
 import Puppeteer from "puppeteer";
+
+async function* asyncGenerator(initial, n) {
+  let i = initial;
+  while (i < n) {
+    yield i++;
+  }
+}
 
 const URL: any = {
   javaUsers: "https://sorry.daldal.so/java/users",
@@ -12,54 +18,7 @@ const URL: any = {
   kkutuList: "https://kkutu.kr",
 };
 
-const getJavaUsers = async () => {
-  let result = await Axios.get(URL.javaUsers);
-
-  if (!result || !result.data || !result.data.users) return;
-  else {
-    return result.data.users.length;
-  }
-};
-
-const getJavaUserList = async () => {
-  let result = await Axios.get(URL.javaUsers);
-
-  if (!result || !result.data) return;
-  else {
-    return result.data.users;
-  }
-};
-
-const search = async (type: string, value: any) => {
-  let result: any;
-  let options: any;
-  if (type == "detail") {
-    options = {
-      title: value.title || "",
-      artist: value.artist || "",
-      tag: value.tag || "",
-      order: "",
-      page: 0,
-    };
-  } else {
-    options = {
-      title: type == "title" ? value : "",
-      artist: type == "artist" ? value : "",
-      tag: type == "tag" ? value : "",
-      order: "",
-      page: 0,
-    };
-  }
-
-  result = await Axios.post(`${URL.search}`, options);
-
-  if (!result || !result.data) return;
-  else {
-    return result.data.list;
-  }
-};
-
-const getDaldalsoUsers = async (id: string, pw: string) => {
+const getUsers = async (id: string, pw: string) => {
   const browser = await Puppeteer.launch();
   const page = await browser.newPage();
   let data: string;
@@ -90,75 +49,148 @@ const getDaldalsoUsers = async (id: string, pw: string) => {
   return JSON.parse(data);
 };
 
-const getJavaSongList = async (
-  mode: string,
-  theme: string | number,
-  page?: string | number,
-  playable?: boolean
-) => {
-  let result = await Axios.get(
-    encodeURI(
-      `${URL.javaSongs}?mode=${mode}&theme=${theme}${
-        page ? "&page=" + page : ""
-      }`
-    )
-  );
+const Sorrydl = {
+  getList: async () => {
+    let list = [];
 
-  if (!result || !result.data) return;
+    list = list.concat(
+      (
+        await Axios.post(`${URL.search}`, {
+          title: "",
+          artist: "",
+          tag: "",
+          order: "",
+          page: 0,
+        })
+      ).data.list
+    );
 
-  if (playable) {
+    for await (let i of asyncGenerator(1, Math.floor(list[0].id / 30))) {
+      list = list.concat(
+        (
+          await Axios.post(`${URL.search}`, {
+            title: "",
+            artist: "",
+            tag: "",
+            order: "",
+            page: i,
+          })
+        ).data.list
+      );
+    }
+
+    return list;
+  },
+
+  search: async (type: string, value: any) => {
+    let result: any;
+    let options: any;
+    if (type == "detail") {
+      options = {
+        title: value.title || "",
+        artist: value.artist || "",
+        tag: value.tag || "",
+        order: "",
+        page: 0,
+      };
+    } else {
+      options = {
+        title: type == "title" ? value : "",
+        artist: type == "artist" ? value : "",
+        tag: type == "tag" ? value : "",
+        order: "",
+        page: 0,
+      };
+    }
+
+    result = await Axios.post(`${URL.search}`, options);
+
+    if (!result || !result.data) return;
+    else {
+      return result.data.list;
+    }
+  },
+};
+const Java = {
+  getSongList: async (
+    mode: string,
+    theme: string | number,
+    page?: string | number,
+    playable?: boolean
+  ) => {
+    let result = await Axios.get(
+      encodeURI(
+        `${URL.javaSongs}?mode=${mode}&theme=${theme}${
+          page ? "&page=" + page : ""
+        }`
+      )
+    );
+
+    if (!result || !result.data) return;
+
+    if (playable) {
+      for (let i in result.data) {
+        if (result.data[i].status == 1) delete result.data[i];
+        else continue;
+      }
+    }
+
     for (let i in result.data) {
-      if (result.data[i].status == 1) delete result.data[i];
+      if (result.data[i].mode != mode) delete result.data[i];
       else continue;
     }
-  }
 
-  for (let i in result.data) {
-    if (result.data[i].mode != mode) delete result.data[i];
-    else continue;
-  }
+    result.data = result.data.filter((element, i) => element != null);
 
-  result.data = result.data.filter((element, i) => element != null);
+    if (result.data.length > 15) {
+      result.data = result.data.slice(0, 15);
+    }
 
-  if (result.data.length > 15) {
-    result.data = result.data.slice(0, 15);
-  }
+    return result.data;
+  },
+  getUsersList: async () => {
+    let result = await Axios.get(URL.javaUsers);
 
-  return result.data;
+    if (!result || !result.data) return;
+    else {
+      return result.data.users;
+    }
+  },
+  getUsers: async () => {
+    let result = await Axios.get(URL.javaUsers);
+
+    if (!result || !result.data || !result.data.users) return;
+    else {
+      return result.data.users.length;
+    }
+  },
+};
+const Etc = {
+  getKKuTuServers: async () => {
+    const browser = await Puppeteer.launch();
+    const page = await browser.newPage();
+    let data: any;
+
+    await page.goto(URL.kkutuList);
+
+    await page.addScriptTag({ path: "kkutulist.js" });
+
+    const list = await page.$('h1[id="KKUTULIST"]');
+
+    data = await page.evaluate((list) => list.textContent, list);
+
+    await browser.close();
+    return data;
+  },
+
+  getMorem: async (data) => {
+    let result = await Axios.get(encodeURI(`${URL.moremDic}?q=${data}`));
+
+    if (!result || !result.data) return;
+    else {
+      return result.data.list;
+    }
+  },
 };
 
-const getMorem = async (data) => {
-  let result = await Axios.get(encodeURI(`${URL.moremDic}?q=${data}`));
-
-  if (!result || !result.data) return;
-  else {
-    return result.data.list;
-  }
-};
-
-const getKKuTuServers = async () => {
-  const browser = await Puppeteer.launch();
-  const page = await browser.newPage();
-  let data: any;
-
-  await page.goto(URL.kkutuList);
-
-  await page.addScriptTag({ path: "kkutulist.js" });
-
-  const list = await page.$('h1[id="KKUTULIST"]');
-
-  data = await page.evaluate((list) => list.textContent, list);
-
-  await browser.close();
-  return data;
-};
-
-export {
-  getJavaUsers,
-  getJavaUserList,
-  search,
-  getDaldalsoUsers,
-  getJavaSongList,
-  getMorem,
-  getKKuTuServers,
-};
+export { Java, Sorrydl, Etc, getUsers };
