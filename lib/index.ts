@@ -130,14 +130,19 @@ const Java = {
     page?: string | number,
     playable?: boolean
   ) => {
-    let result = await Axios.get(
-      encodeURI(
-        `${URL.javaSongs}?mode=${mode}&theme=${theme}${
-          page ? "&page=" + page : ""
-        }`
-      )
-    );
+    let result;
 
+    try {
+      result = await Axios.get(
+        encodeURI(
+          `${URL.javaSongs}?mode=${mode}&theme=${theme}${
+            page ? "&page=" + page : ""
+          }`
+        )
+      );
+    } catch (e) {
+      return e.toString();
+    }
     if (!result || !result.data) return;
 
     if (playable) {
